@@ -1,104 +1,82 @@
 import tkinter as tk
 from tkinter import ttk
 import re
+import sys
 
 
-class Controller:
-    def __init__(self, master, model, view):
-        self.model = model
-        self.view = view
-        self.master = master
+def validate_number(value: str) -> bool:
+    """Returns a boolean indicating if value is in the form [-|+]{0..9}[.]{0..9}"""
+    if re.fullmatch(r"^[-,+]?\d*\.?\d*$", value) is None:
+        return False
+    else:
+        return True
 
-        self.init_unit_base_frame()
-        self.init_unit_formula_frame()
-        self.add_unit_base_event_handlers()
-        self.add_unit_formula_event_handlers()
 
-    def init_unit_base_frame(self):
-        float_vcmd = (self.master.register(self.validate_number), '%P')
-        ivcmd = (self.master.register(self.on_invalid),)
-        self.view.unit_basis_frame.unit_price_entry.configure(
-            validate='key',
-            validatecommand=float_vcmd,
-            invalidcommand=ivcmd,
-            textvariable=self.model.ub_unit_price_var,
-        )
-        self.view.unit_basis_frame.basis_value_entry.configure(
-            validate='key',
-            validatecommand=float_vcmd,
-            invalidcommand=ivcmd,
-            textvariable=self.model.ub_basis_value_var,
-        )
+def validate_unsigned_number(value: str) -> bool:
+    """Returns a boolean indicating if value is in the form {0..9}[.]{0..9}"""
+    if re.fullmatch(r"^\d*\.?\d*$", value) is None:
+        return False
+    else:
+        return True
 
-    def init_unit_formula_frame(self):
-        formula_vcmd = (self.master.register(self.validate_formula), '%P')
-        float_vcmd = (self.master.register(self.validate_number), '%P')
-        ivcmd = (self.master.register(self.on_invalid),)
-        self.view.unit_formula_frame.unit_price_entry.configure(
-            validate='key',
-            validatecommand=float_vcmd,
-            invalidcommand=ivcmd,
-            textvariable=self.model.uf_formula_var,
-        )
-        self.view.unit_formula_frame.formula_entry.configure(
-            validate='key',
-            validatecommand=formula_vcmd,
-            invalidcommand=ivcmd,
-            textvariable=self.model.uf_unit_price_var,
-        )
-        self.view.unit_basis_frame.multiplier_formula_entry.configure(
-            textvariable=self.model.ub_multilier_formula_var,
-        )
-        self.view.unit_basis_frame.discount_formula_entry.configure(
-            textvariable=self.model.ub_discount_formula_var,
-        )
-        self.view.unit_basis_frame.markup_formula_entry.configure(
-            textvariable=self.model.ub_markup_formula_var,
-        )
-        self.view.unit_basis_frame.gross_profit_formula_entry.configure(
-            textvariable=self.model.ub_gross_profit_formula_var,
-        )
 
-    @staticmethod
-    def validate_number(value):
-        if re.fullmatch(r"^\$?\d*\.?\d*$", value) is None:
-            return False
-        else:
-            return True
+def validate_formula(value: str) -> bool:
+    """Returns a boolean indicating if value is in one of the forms case insensitive
 
-    @staticmethod
-    def validate_formula(value):
-        if re.fullmatch(r'^(\*|X|-|\+|D|GP)\d*\.?\d*$', value, flags=re.IGNORECASE) is not None or value == '':
-            return True
-        else:
-            return False
+        [G]
 
-    def on_invalid(self):
-        print('invalid')
-        self.master.bell()
-        self.master.bell()
+        [''|None]
 
-    def add_unit_base_event_handlers(self):
-        self.view.unit_basis_frame.unit_price_entry.bind('<KeyRelease>', self.calculate_formulas)
-        self.view.unit_basis_frame.basis_value_entry.bind('KeyRelease>', self.calculate_formulas)
+        [*||X||D|-|+]{0..9}[.]{0..9}
 
-    def add_unit_formula_event_handlers(self):
-        pass
+        GP[-|+]{0..9}[.]{0..9}
 
-    def calculate_formulas(self):
-        if self.model.ub_unit_price_var is not None and self.model.ub_basis_value_var is not None:
-            multiplier = self.model.ub_unit_price_var / self.model.ub_basis_value_var
+        """
+    if not value:
+        return True
+    if value[0].upper() in "*XD-+" and validate_unsigned_number(value=value[1:]):
+        return True
+    if value.upper() == 'G':
+        return True
+    if value.upper().startswith('GP') and validate_number(value=value[2:]):
+        return True
+
+    return False
 
 
 class UnitBasisFrame(ttk.Frame):
+    """Ttk Frame with a predefined set of widgets"""
     def __init__(self, master, **kwargs):
+        """Construct a Ttk Frame with parent master and predefined widgets.
+
+        STANDARD OPTIONS
+            class, cursor, style, takefocus
+
+        WIDGET-SPECIFIC OPTIONS
+
+            borderwidth, relief, padding, width, height
+        """
+        """
+        ┌───────────────────────────────────────────────┐
+        │           ┌────────────────┐┌────────────────┐│
+        │Unit Price │                ││                ││
+        │           └────────────────┘└────────────────┘│
+        │           ┌────────────────┐┌────────────────┐│
+        │Basis Value│                ││                ││
+        │           └────────────────┘└────────────────┘│
+        │           ┌────────────────┐┌────────────────┐│
+        │Decimals   │Auto           v││                ││
+        │           └────────────────┘└────────────────┘│
+        │                             ┌────────────────┐│
+        │                             │                ││
+        │                             └────────────────┘│
+        └───────────────────────────────────────────────┘
+        """
         super().__init__(master, **kwargs)
 
-        self.master = master
-
         # validation functions
-        vcmd = (self.master.register(self.validate), '%P')
-        ivcmd = (self.master.register(self.on_invalid),)
+        vcmd = (self.master.register(validate_number), '%P')
+        ivcmd = (self.master.register(self.on_invalid), '%W')
 
         # text variables
         self.unit_price_var = tk.StringVar()
@@ -172,27 +150,30 @@ class UnitBasisFrame(ttk.Frame):
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=2)
 
-    @staticmethod
-    def validate(value):
-        if re.fullmatch(r"^\d*\.?\d*$", value) is None:
-            return False
-        else:
-            return True
+    def on_invalid(self, name):
+        self.bell()
 
-    def on_invalid(self):
-        self.master.bell()
-        self.master.bell()
-
-    def update_display(self, e):
-
-        print(self.unit_price_var.get())
+    def update_display(self, _):
         if self.unit_price_var.get() and self.basis_value_var.get():
             print('hello')
             multiplier = float(self.unit_price_var.get()) / float(self.basis_value_var.get())
             self.multiplier_var.set(f'*{multiplier}')
-            self.discount_var.set(f'{(1-multiplier)*100:-}')
-            self.markup_var.set(f'{1/multiplier}')
-            self.gross_profit_var.set(f'#####')
+            self.discount_var.set(f'{(multiplier - 1) * 100:-}')
+            if multiplier:
+                self.markup_var.set(f'D{1 / multiplier}')
+            if multiplier:
+                numeric_part = (1 - 1 / multiplier) * 100
+                if 0 <= numeric_part < 100:
+                    self.gross_profit_var.set(f'GP{(1 - 1 / multiplier) * 100}')
+                else:
+                    self.gross_profit_var.set('')
+            else:
+                self.gross_profit_var.set('')
+        else:
+            self.multiplier_var.set('')
+            self.discount_var.set('')
+            self.markup_var.set('')
+            self.gross_profit_var.set('')
 
 
 class UnitFormulaFrame(ttk.Frame):
@@ -202,9 +183,9 @@ class UnitFormulaFrame(ttk.Frame):
         self.master = master
 
         # validation functions
-        nvcmd = (self.master.register(self.validate_number), '%P')
-        fvcmd = (self.master.register(self.validate_formula), '%P')
-        ivcmd = (self.master.register(self.on_invalid),)
+        nvcmd = (self.master.register(validate_number), '%P')
+        fvcmd = (self.master.register(validate_formula), '%P')
+        ivcmd = (self.master.register(self.on_invalid), '%W')
 
         # create the widgets
         self.unit_price_label = ttk.Label(self, text='Unit Price')
@@ -234,23 +215,23 @@ class UnitFormulaFrame(ttk.Frame):
         self.calculated_basis_label.grid(row=2, column=0, sticky='w')
         self.calculated_basis_entry.grid(row=2, column=1, sticky='we')
 
-    def validate_number(self, value):
-        if re.fullmatch(r"^\$?\d*\.?\d*$", value) is None:
-            return False
-        else:
-            return True
+    def on_invalid(self, name):
+        print(name)
+        if name == '.!view.!unitformulaframe.!entry':
+            print('unit price')
+            self.unit_price_entry.configure(background='red')
+            self.update()
+            self.after(1000, lambda: self.reset_background(self.unit_price_entry))
+        if name == '.!view.unitformulaframe.!entry2':
+            print('formula')
+            self.formula_entry['bg'] = 'red'
+            self.update()
+            self.after(1000, lambda: self.reset_background(self.formula_entry))
 
-    def validate_formula(self, value):
-        print(re.fullmatch(r'^(\*|X|-|\+|D|(?<G).*G)\d*\.?\d*$', value, flags=re.IGNORECASE))
-        if re.fullmatch(r'^(\*|X|-|\+|D|GP)\d*\.?\d*$', value, flags=re.IGNORECASE) is not None or value == '':
-            return True
-        else:
-            return False
+    def reset_background(self, widget):
+        print('reset')
+        widget['background'] = 'white'
 
-    def on_invalid(self):
-        print('invalid')
-        self.master.bell()
-        self.master.bell()
 
 
 class View(ttk.Frame):
