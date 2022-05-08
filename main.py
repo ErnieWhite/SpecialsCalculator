@@ -44,8 +44,16 @@ def validate_formula(value: str) -> bool:
     return False
 
 
+def find_multiplier(formula: str) -> float:
+    """Converts a string formula to a float multiplier"""
+
+
+
 class UnitBasisFrame(ttk.Frame):
-    """Ttk Frame with a predefined set of widgets"""
+    """Ttk Frame with a predefined set of widgets
+
+    See class definition for a layout of the widgets
+    """
     def __init__(self, master, **kwargs):
         """Construct a Ttk Frame with parent master and predefined widgets.
 
@@ -150,7 +158,7 @@ class UnitBasisFrame(ttk.Frame):
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=2)
 
-    def on_invalid(self, name):
+    def on_invalid(self):
         self.bell()
 
     def update_display(self, _):
@@ -177,10 +185,36 @@ class UnitBasisFrame(ttk.Frame):
 
 
 class UnitFormulaFrame(ttk.Frame):
+    """Ttk Frame with a predefined set of widgets
+
+        See class definition for a layout of the widgets
+    """
+    """
+    ┌───────────────────────────────────────────────┐
+    │           ┌────────────────┐                  │
+    │Unit Price │                │                  │
+    │           └────────────────┘                  │
+    │           ┌────────────────┐                  │ 
+    │Formula    │                │                  │
+    │           └────────────────┘                  │
+    │           ┌────────────────┐                  │
+    │Basis Value│                │                  │
+    │           └────────────────┘                  │
+    │                                               │
+    │                                               │
+    │                                               │
+    └───────────────────────────────────────────────┘
+    """
+
     def __init__(self, master, **kwargs):
         super().__init__(master=master, **kwargs)
 
         self.master = master
+
+        # create text variables
+        self.unit_price_var = tk.StringVar()
+        self.formula_var = tk.StringVar()
+        self.calculated_basis_var = tk.StringVar()
 
         # validation functions
         nvcmd = (self.master.register(validate_number), '%P')
@@ -198,13 +232,18 @@ class UnitFormulaFrame(ttk.Frame):
             validatecommand=nvcmd,
             invalidcommand=ivcmd,
         )
+        self.unit_price_entry.bind('<KeyRelease>', self.update_display)
         self.formula_entry = ttk.Entry(
             self,
             validate='key',
             validatecommand=fvcmd,
             invalidcommand=ivcmd,
         )
-        self.calculated_basis_entry = ttk.Entry(self)
+        self.formula_entry.bind('<KeyRelease>', self.update_display)
+        self.calculated_basis_entry = ttk.Entry(
+            self,
+            state='readonly',
+        )
 
         self.unit_price_label.grid(row=0, column=0, sticky='w')
         self.unit_price_entry.grid(row=0, column=1, sticky='we')
@@ -215,23 +254,16 @@ class UnitFormulaFrame(ttk.Frame):
         self.calculated_basis_label.grid(row=2, column=0, sticky='w')
         self.calculated_basis_entry.grid(row=2, column=1, sticky='we')
 
-    def on_invalid(self, name):
-        print(name)
-        if name == '.!view.!unitformulaframe.!entry':
-            print('unit price')
-            self.unit_price_entry.configure(background='red')
-            self.update()
-            self.after(1000, lambda: self.reset_background(self.unit_price_entry))
-        if name == '.!view.unitformulaframe.!entry2':
-            print('formula')
-            self.formula_entry['bg'] = 'red'
-            self.update()
-            self.after(1000, lambda: self.reset_background(self.formula_entry))
+    def update_display(self):
+        unit_price = self.unit_price_var.get()
+        formula = self.formula_var.get()
+        if validate_number(unit_price) and validate_formula(formula):
+            multiplier = find_multiplier(formula)
+        else:
+            self.calculated_basis_var.set('')
 
-    def reset_background(self, widget):
-        print('reset')
-        widget['background'] = 'white'
-
+    def on_invalid(self):
+        self.bell()
 
 
 class View(ttk.Frame):
