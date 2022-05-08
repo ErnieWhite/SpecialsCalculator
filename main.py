@@ -44,9 +44,25 @@ def validate_formula(value: str) -> bool:
     return False
 
 
-def find_multiplier(formula: str) -> float:
-    """Converts a string formula to a float multiplier"""
+def contains_digit(value: str) -> bool:
+    return {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}.union(value) != {}
 
+
+def find_multiplier(formula: str) -> float:
+    """Converts a string formula to a float multiplier
+
+        A return value of -1 indicates error
+    """
+    print(f'FORMULA: {formula}')
+    if formula[0] in '+-':
+        return 1 - float(formula[1:]) / 100 if contains_digit(formula[1:]) else -1
+    if formula[0].upper() == 'D' and contains_digit(formula[1:]):
+        return 1 / float(formula[1:])
+    if formula.upper().startswith('GP') and contains_digit(formula[2:]):
+        return 1 / (1 - float(formula[2:]) / 100)
+    if formula[0].upper() in '*X' and contains_digit(formula[1:]):
+        return float(formula[1:])
+    return -1
 
 
 class UnitBasisFrame(ttk.Frame):
@@ -228,6 +244,7 @@ class UnitFormulaFrame(ttk.Frame):
 
         self.unit_price_entry = ttk.Entry(
             self,
+            textvariable=self.unit_price_var,
             validate='key',
             validatecommand=nvcmd,
             invalidcommand=ivcmd,
@@ -235,6 +252,7 @@ class UnitFormulaFrame(ttk.Frame):
         self.unit_price_entry.bind('<KeyRelease>', self.update_display)
         self.formula_entry = ttk.Entry(
             self,
+            textvariable=self.formula_var,
             validate='key',
             validatecommand=fvcmd,
             invalidcommand=ivcmd,
@@ -242,6 +260,7 @@ class UnitFormulaFrame(ttk.Frame):
         self.formula_entry.bind('<KeyRelease>', self.update_display)
         self.calculated_basis_entry = ttk.Entry(
             self,
+            textvariable=self.calculated_basis_var,
             state='readonly',
         )
 
@@ -254,11 +273,16 @@ class UnitFormulaFrame(ttk.Frame):
         self.calculated_basis_label.grid(row=2, column=0, sticky='w')
         self.calculated_basis_entry.grid(row=2, column=1, sticky='we')
 
-    def update_display(self):
+    def update_display(self, _):
         unit_price = self.unit_price_var.get()
         formula = self.formula_var.get()
-        if validate_number(unit_price) and validate_formula(formula):
+        if validate_number(unit_price) and validate_formula(formula) and unit_price is not None and formula:
             multiplier = find_multiplier(formula)
+            print(f'UnitPrice {unit_price}\nFormula {formula}\nMultiplier {multiplier}')
+            if multiplier != -1:
+                self.calculated_basis_var.set(float(self.unit_price_var.get()) / multiplier)
+            else:
+                self.calculated_basis_var.set('')
         else:
             self.calculated_basis_var.set('')
 
