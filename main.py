@@ -12,6 +12,20 @@ def validate_number(value: str) -> bool:
         return True
 
 
+def valid_formula(formula: str) -> bool:
+    # if formula is falsey
+    formula = formula.upper()
+    if not formula:
+        return False
+    leaders = ['*', 'X', 'D', '-', '+', 'GP']
+    for leader in leaders:
+        if len(formula) <= len(leader):
+            return False
+        if not contains_digit(formula):
+            return False
+    return True
+
+
 def validate_unsigned_number(value: str) -> bool:
     """Returns a boolean indicating if value is in the form {0..9}[.]{0..9}"""
     if re.fullmatch(r"^\d*\.?\d*$", value) is None:
@@ -45,7 +59,7 @@ def validate_formula(value: str) -> bool:
 
 
 def contains_digit(value: str) -> bool:
-    return {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}.union(value) != {}
+    return any(x in '0123456789' for x in value)
 
 
 def find_multiplier(formula: str) -> float:
@@ -53,16 +67,17 @@ def find_multiplier(formula: str) -> float:
 
         A return value of -1 indicates error
     """
-    print(f'FORMULA: {formula}')
-    if formula[0] in '+-':
-        return 1 - float(formula[1:]) / 100 if contains_digit(formula[1:]) else -1
-    if formula[0].upper() == 'D' and contains_digit(formula[1:]):
-        return 1 / float(formula[1:])
-    if formula.upper().startswith('GP') and contains_digit(formula[2:]):
-        return 1 / (1 - float(formula[2:]) / 100)
-    if formula[0].upper() in '*X' and contains_digit(formula[1:]):
-        return float(formula[1:])
-    return -1
+    try:
+        if formula[0] in '+-':
+            return 1 - float(formula[1:]) / 100
+        if formula[0].upper() == 'D':
+            return 1 / float(formula[1:])
+        if formula.upper().startswith('GP'):
+            return 1 / (1 - float(formula[2:]) / 100)
+        if formula[0].upper() in '*X':
+            return float(formula[1:])
+    except ZeroDivisionError:
+        return -1
 
 
 class UnitBasisFrame(ttk.Frame):
@@ -109,22 +124,25 @@ class UnitBasisFrame(ttk.Frame):
         self.discount_var = tk.StringVar()
         self.markup_var = tk.StringVar()
         self.gross_profit_var = tk.StringVar()
+        self.decimals_var = tk.StringVar()
 
         # create the widgets
-        self.unit_price_label = ttk.Label(self, text='Unit Price')
-        self.basis_value_label = ttk.Label(self, text='Basis Value')
-        self.decimals_label = ttk.Label(self, text='Decimals')
+        self.unit_price_label = ttk.Label(self, text='Unit Price', font=('TkDefaultFont', 18))
+        self.basis_value_label = ttk.Label(self, text='Basis Value', font=('TkDefaultFont', 18))
+        self.decimals_label = ttk.Label(self, text='Decimals', font=('TkDefaultFont', 18))
 
         self.unit_price_entry = ttk.Entry(
             self,
             textvariable=self.unit_price_var,
             validate='key',
+            font=('TkDefaultFont', 18),
             validatecommand=vcmd,
             invalidcommand=ivcmd,
         )
         self.unit_price_entry.bind('<KeyRelease>', self.update_display)
         self.basis_value_entry = ttk.Entry(
             self,
+            font=('TkDefaultFont', 18),
             textvariable=self.basis_value_var,
             validate='key',
             validatecommand=vcmd,
@@ -133,62 +151,70 @@ class UnitBasisFrame(ttk.Frame):
         self.basis_value_entry.bind('<KeyRelease>', self.update_display)
         self.decimals_combo = ttk.Combobox(
             self,
-            values=('Auto', '1', '2', '3', '4', '5', '6'),
+            font=('TkDefaultFont', 18),
+            values=('Auto', '0', '1', '2', '3', '4', '5', '6'),
+            state='readonly',
+            textvariable=self.decimals_var,
         )
+        self.decimals_combo.bind('<<ComboboxSelected>>', self.update_display)
         self.decimals_combo.set('Auto')
 
         self.multiplier_formula_entry = ttk.Entry(
             self,
+            font=('TkDefaultFont', 18),
             textvariable=self.multiplier_var,
             state='readonly',
         )
         self.discount_formula_entry = ttk.Entry(
             self,
+            font=('TkDefaultFont', 18),
             textvariable=self.discount_var,
             state='readonly',
         )
         self.markup_formula_entry = ttk.Entry(
             self,
+            font=('TkDefaultFont', 18),
             textvariable=self.markup_var,
             state='readonly',
         )
         self.gross_profit_formula_entry = ttk.Entry(
             self,
+            font=('TkDefaultFont', 18),
             textvariable=self.gross_profit_var,
             state='readonly',
         )
 
-        self.unit_price_label.grid(row=0, column=0, sticky='w')
-        self.unit_price_entry.grid(row=0, column=1, sticky='ew')
-        self.multiplier_formula_entry.grid(row=0, column=2, sticky='ew')
+        self.unit_price_label.grid(row=0, column=0, sticky='w', pady=10, padx=10)
+        self.unit_price_entry.grid(row=0, column=1, sticky='ew', pady=10, padx=10)
+        self.multiplier_formula_entry.grid(row=0, column=2, sticky='ew', pady=10, padx=10)
 
-        self.basis_value_label.grid(row=1, column=0, sticky='w')
-        self.basis_value_entry.grid(row=1, column=1, sticky='ew')
-        self.discount_formula_entry.grid(row=1, column=2, sticky='ew')
+        self.basis_value_label.grid(row=1, column=0, sticky='w', pady=10, padx=10)
+        self.basis_value_entry.grid(row=1, column=1, sticky='ew', pady=10, padx=10)
+        self.discount_formula_entry.grid(row=1, column=2, sticky='ew', pady=10, padx=10)
 
-        self.decimals_label.grid(row=2, column=0, sticky='w')
-        self.decimals_combo.grid(row=2, column=1, sticky='ew')
-        self.markup_formula_entry.grid(row=2, column=2, sticky='ew')
+        self.decimals_label.grid(row=2, column=0, sticky='w', pady=10, padx=10)
+        self.decimals_combo.grid(row=2, column=1, sticky='ew', pady=10, padx=10)
+        self.markup_formula_entry.grid(row=2, column=2, sticky='ew', pady=10, padx=10)
 
-        self.gross_profit_formula_entry.grid(row=3, column=2, sticky='ew')
+        self.gross_profit_formula_entry.grid(row=3, column=2, sticky='ew', pady=10, padx=10)
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=2)
 
-    def on_invalid(self):
+    def on_invalid(self, _):
         self.bell()
 
     def update_display(self, _):
-        if self.unit_price_var.get() and self.basis_value_var.get():
-            print('hello')
+        if contains_digit(self.unit_price_var.get()) and contains_digit(self.basis_value_var.get()):
+            decimals = int(self.decimals_var.get()) if self.decimals_var.get() != 'Auto' else 6
             multiplier = float(self.unit_price_var.get()) / float(self.basis_value_var.get())
-            self.multiplier_var.set(f'*{multiplier}')
-            self.discount_var.set(f'{(multiplier - 1) * 100:-}')
+            self.multiplier_var.set(f'*{round(multiplier, decimals)}')
+            self.discount_var.set(f'{round((multiplier - 1) * 100, decimals):-}')
             if multiplier:
-                self.markup_var.set(f'D{1 / multiplier}')
+                self.markup_var.set(f'D{round(1 / multiplier, decimals)}')
             if multiplier:
                 numeric_part = (1 - 1 / multiplier) * 100
-                if 0 <= numeric_part < 100:
-                    self.gross_profit_var.set(f'GP{(1 - 1 / multiplier) * 100}')
+                if numeric_part < 100:
+                    self.gross_profit_var.set(f'GP{round((1 - 1 / multiplier) * 100, decimals)}')
                 else:
                     self.gross_profit_var.set('')
             else:
@@ -238,12 +264,12 @@ class UnitFormulaFrame(ttk.Frame):
         ivcmd = (self.master.register(self.on_invalid), '%W')
 
         # create the widgets
-        self.unit_price_label = ttk.Label(self, text='Unit Price')
-        self.formula_label = ttk.Label(self, text='Formula')
-        self.calculated_basis_label = ttk.Label(self, text='Basis Value')
+        self.unit_price_label = ttk.Label(self, text='Unit Price', font=('TkDefaultFont', 18))
+        self.formula_label = ttk.Label(self, text='Formula', font=('TkDefaultFont', 18))
+        self.calculated_basis_label = ttk.Label(self, text='Basis Value', font=('TkDefaultFont', 18))
 
         self.unit_price_entry = ttk.Entry(
-            self,
+            self, font=('TkDefaultFont', 18),
             textvariable=self.unit_price_var,
             validate='key',
             validatecommand=nvcmd,
@@ -251,7 +277,7 @@ class UnitFormulaFrame(ttk.Frame):
         )
         self.unit_price_entry.bind('<KeyRelease>', self.update_display)
         self.formula_entry = ttk.Entry(
-            self,
+            self, font=('TkDefaultFont', 18),
             textvariable=self.formula_var,
             validate='key',
             validatecommand=fvcmd,
@@ -259,40 +285,42 @@ class UnitFormulaFrame(ttk.Frame):
         )
         self.formula_entry.bind('<KeyRelease>', self.update_display)
         self.calculated_basis_entry = ttk.Entry(
-            self,
+            self, font=('TkDefaultFont', 18),
             textvariable=self.calculated_basis_var,
             state='readonly',
         )
 
-        self.unit_price_label.grid(row=0, column=0, sticky='w')
-        self.unit_price_entry.grid(row=0, column=1, sticky='we')
+        self.unit_price_label.grid(row=0, column=0, sticky='w', pady=10, padx=10)
+        self.unit_price_entry.grid(row=0, column=1, sticky='we', pady=10, padx=10)
 
-        self.formula_label.grid(row=1, column=0, sticky='w')
-        self.formula_entry.grid(row=1, column=1, sticky='we')
+        self.formula_label.grid(row=1, column=0, sticky='w', pady=10, padx=10)
+        self.formula_entry.grid(row=1, column=1, sticky='we', pady=10, padx=10)
 
-        self.calculated_basis_label.grid(row=2, column=0, sticky='w')
-        self.calculated_basis_entry.grid(row=2, column=1, sticky='we')
+        self.calculated_basis_label.grid(row=2, column=0, sticky='w', pady=10, padx=10)
+        self.calculated_basis_entry.grid(row=2, column=1, sticky='we', pady=10, padx=10)
 
     def update_display(self, _):
         unit_price = self.unit_price_var.get()
         formula = self.formula_var.get()
-        if validate_number(unit_price) and validate_formula(formula) and unit_price is not None and formula:
+        if validate_number(unit_price) and valid_formula(formula):
             multiplier = find_multiplier(formula)
-            print(f'UnitPrice {unit_price}\nFormula {formula}\nMultiplier {multiplier}')
-            if multiplier != -1:
+            if multiplier not in [0, -1]:
                 self.calculated_basis_var.set(float(self.unit_price_var.get()) / multiplier)
             else:
                 self.calculated_basis_var.set('')
         else:
             self.calculated_basis_var.set('')
 
-    def on_invalid(self):
+    def on_invalid(self, _):
         self.bell()
 
 
 class View(ttk.Frame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
+
+        s = ttk.Style()
+        s.configure('TNotebook.Tab', font=('TkDefaultFont', '18', 'bold'))
 
         # create the container to hold the frames
         self.tabs = ttk.Notebook(self)
