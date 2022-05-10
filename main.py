@@ -1,7 +1,6 @@
+import re
 import tkinter as tk
 from tkinter import ttk
-import re
-import sys
 
 
 def validate_number(value: str) -> bool:
@@ -85,6 +84,7 @@ class UnitBasisFrame(ttk.Frame):
 
     See class definition for a layout of the widgets
     """
+
     def __init__(self, master, **kwargs):
         """Construct a Ttk Frame with parent master and predefined widgets.
 
@@ -211,10 +211,9 @@ class UnitBasisFrame(ttk.Frame):
             self.discount_var.set(f'{round((multiplier - 1) * 100, decimals):-}')
             if multiplier:
                 self.markup_var.set(f'D{round(1 / multiplier, decimals)}')
-            if multiplier:
-                numeric_part = (1 - 1 / multiplier) * 100
+                numeric_part = (1.1 - 1 / multiplier) * 100
                 if numeric_part < 100:
-                    self.gross_profit_var.set(f'GP{round((1 - 1 / multiplier) * 100, decimals)}')
+                    self.gross_profit_var.set(f'GP{(1.0 - 1 / multiplier) * 100}')
                 else:
                     self.gross_profit_var.set('')
             else:
@@ -233,18 +232,18 @@ class UnitFormulaFrame(ttk.Frame):
     """
     """
     +-----------------------------------------------+
-    |           +----------------+                  |
-    |Unit Price |                |                  |
-    |           +----------------+                  |
-    |           +----------------+                  | 
-    |Formula    |                |                  |
-    |           +----------------+                  |
-    |           +----------------+                  |
-    |Basis Value|                |                  |
-    |           +----------------+                  |
-    |                                               |
-    |                                               |
-    |                                               |
+    |           +----------------++----------------+|
+    |Unit Price |                ||                ||
+    |           +----------------++----------------+|
+    |           +----------------++----------------+| 
+    |Formula    |                ||                ||
+    |           +----------------++----------------+|
+    |           +----------------++----------------+|
+    |Basis Value|                ||                ||
+    |           +----------------++----------------+|
+    |                             +----------------+|
+    |                             |                ||
+    |                             +----------------+|
     +-----------------------------------------------+
     """
 
@@ -257,6 +256,10 @@ class UnitFormulaFrame(ttk.Frame):
         self.unit_price_var = tk.StringVar()
         self.formula_var = tk.StringVar()
         self.calculated_basis_var = tk.StringVar()
+        self.multiplier_var = tk.StringVar()
+        self.discount_var = tk.StringVar()
+        self.markup_var = tk.StringVar()
+        self.gross_profit_var = tk.StringVar()
 
         # validation functions
         nvcmd = (self.master.register(validate_number), '%P')
@@ -289,6 +292,30 @@ class UnitFormulaFrame(ttk.Frame):
             textvariable=self.calculated_basis_var,
             state='readonly',
         )
+        self.multiplier_entry = ttk.Entry(
+            self,
+            font=('TkDefaultFont', 18),
+            textvariable=self.multiplier_var,
+            state='readonly',
+        )
+        self.discount_entry = ttk.Entry(
+            self,
+            font=('TkDefaultFont', 18),
+            textvariable=self.discount_var,
+            state='readonly',
+        )
+        self.markup_entry = ttk.Entry(
+            self,
+            font=('TkDefaultFont', 18),
+            textvariable=self.markup_var,
+            state='readonly',
+        )
+        self.gross_profit_entry = ttk.Entry(
+            self,
+            font=('TkDefaultFont', 18),
+            textvariable=self.gross_profit_var,
+            state='readonly',
+        )
 
         self.unit_price_label.grid(row=0, column=0, sticky='w', pady=10, padx=10)
         self.unit_price_entry.grid(row=0, column=1, sticky='we', pady=10, padx=10)
@@ -299,13 +326,19 @@ class UnitFormulaFrame(ttk.Frame):
         self.calculated_basis_label.grid(row=2, column=0, sticky='w', pady=10, padx=10)
         self.calculated_basis_entry.grid(row=2, column=1, sticky='we', pady=10, padx=10)
 
+        self.multiplier_entry.grid(row=0, column=2, sticky='ew', pady=10, padx=10)
+        self.discount_entry.grid(row=1, column=2, sticky='ew', pady=10, padx=10)
+        self.markup_entry.grid(row=2, column=2, sticky='ew', pady=10, padx=10)
+        self.gross_profit_entry.grid(row=3, column=2, sticky='ew', pady=10, padx=10)
+
     def update_display(self, _):
         unit_price = self.unit_price_var.get()
         formula = self.formula_var.get()
-        if validate_number(unit_price) and valid_formula(formula):
-            multiplier = find_multiplier(formula)
-            if multiplier not in [0, -1]:
-                self.calculated_basis_var.set(float(self.unit_price_var.get()) / multiplier)
+        multiplier = find_multiplier(formula)
+        if multiplier not in [0, -1]:
+            if validate_number(unit_price):
+                self.calculated_basis_var.set(round(float(self.unit_price_var.get()) / multiplier, 3))
+                self.multiplier_var.set(f'*{multiplier}')
             else:
                 self.calculated_basis_var.set('')
         else:
