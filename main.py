@@ -213,7 +213,7 @@ class UnitBasisFrame(ttk.Frame):
                 self.markup_var.set(f'D{round(1 / multiplier, decimals)}')
                 numeric_part = (1.1 - 1 / multiplier) * 100
                 if numeric_part < 100:
-                    self.gross_profit_var.set(f'GP{(1.0 - 1 / multiplier) * 100}')
+                    self.gross_profit_var.set(f'GP{round((1.0 - 1 / multiplier) * 100.0, decimals)}')
                 else:
                     self.gross_profit_var.set('')
             else:
@@ -334,13 +334,21 @@ class UnitFormulaFrame(ttk.Frame):
     def update_display(self, _):
         unit_price = self.unit_price_var.get()
         formula = self.formula_var.get()
-        multiplier = find_multiplier(formula)
-        if multiplier not in [0, -1]:
-            if validate_number(unit_price):
-                self.calculated_basis_var.set(round(float(self.unit_price_var.get()) / multiplier, 3))
-                self.multiplier_var.set(f'*{multiplier}')
+        if valid_formula(formula):
+            multiplier = find_multiplier(formula)
+            self.multiplier_var.set(f'*{round(multiplier, 6)}')
+            self.discount_var.set(f'{round((multiplier-1)*100,6):-}')
+            if multiplier != 0:
+                self.markup_var.set(f'D{round(1/multiplier,6)}')
+                self.gross_profit_var.set(f'GP{round((1-1/multiplier)*100, 6)}')
+                if contains_digit(unit_price):
+                    self.calculated_basis_var.set(round(float(self.unit_price_var.get()) / multiplier, 3))
+                    self.multiplier_var.set(f'*{multiplier}')
+                else:
+                    self.calculated_basis_var.set('')
             else:
-                self.calculated_basis_var.set('')
+                self.markup_var.set('')
+                self.gross_profit_var.set('')
         else:
             self.calculated_basis_var.set('')
 
