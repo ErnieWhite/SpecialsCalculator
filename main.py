@@ -20,8 +20,8 @@ def valid_formula(formula: str) -> bool:
     for leader in leaders:
         if len(formula) <= len(leader):
             return False
-        if not contains_digit(formula):
-            return False
+    if not contains_digit(formula):
+        return False
     return True
 
 
@@ -45,15 +45,19 @@ def validate_formula(value: str) -> bool:
         GP[-|+]{0..9}[.]{0..9}
 
         """
-    if not value:
+    leaders = ['*', 'X', '-', '+', 'G', 'GP']
+    if value == '':
         return True
-    if value[0].upper() in "*XD-+" and validate_unsigned_number(value=value[1:]):
+    if value in leaders:
         return True
-    if value.upper() == 'G':
-        return True
+    for leader in leaders[:len(leaders)-1]:  # don't look at the GP on the end
+        value = value.replace(leader, '', 1)  # remove the leaders from value
+    if value.startswith('G'):
+        value = value[1:]
     if value.upper().startswith('GP') and validate_number(value=value[2:]):
         return True
-
+    if validate_number(value):
+        return True
     return False
 
 
