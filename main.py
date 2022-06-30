@@ -1,14 +1,13 @@
-import re
 import tkinter as tk
 from tkinter import ttk
 
 
-def validate_number(value: str) -> bool:
-    """Returns a boolean indicating if value is in the form [-|+]{0..9}[.]{0..9}"""
-    if re.fullmatch(r"^[-,+]?\d*\.?\d*$", value) is None:
-        return False
-    else:
+def is_float(value):
+    try:
+        float(value)
         return True
+    except ValueError:
+        return False
 
 
 def valid_formula(formula: str) -> bool:
@@ -23,14 +22,6 @@ def valid_formula(formula: str) -> bool:
     if not contains_digit(formula):
         return False
     return True
-
-
-def validate_unsigned_number(value: str) -> bool:
-    """Returns a boolean indicating if value is in the form {0..9}[.]{0..9}"""
-    if re.fullmatch(r"^\d*\.?\d*$", value) is None:
-        return False
-    else:
-        return True
 
 
 def validate_formula(value: str) -> bool:
@@ -54,9 +45,9 @@ def validate_formula(value: str) -> bool:
         value = value.replace(leader, '', 1)  # remove the leaders from value
     if value.startswith('G'):
         value = value[1:]
-    if value.upper().startswith('GP') and validate_number(value=value[2:]):
+    if value.upper().startswith('GP') and is_float(value=value[2:]):
         return True
-    if validate_number(value):
+    if is_float(value):
         return True
     return False
 
@@ -118,7 +109,7 @@ class UnitBasisFrame(ttk.Frame):
         super().__init__(master, **kwargs)
 
         # validation functions
-        vcmd = (self.master.register(validate_number), '%P')
+        vcmd = (self.master.register(is_float), '%P')
         ivcmd = (self.master.register(self.on_invalid), '%W')
 
         # text variables
@@ -188,27 +179,56 @@ class UnitBasisFrame(ttk.Frame):
             state='readonly',
         )
 
+        self.button_copy_multiplier = tk.Button(self, text="Copy", command=self.copy_multiplier_formula_entry)
+        self.button_copy_discount = tk.Button(self, text="Copy", command=self.copy_discount_formula_entry)
+        self.button_copy_markup = tk.Button(self, text="Copy", command=self.copy_markup_formula_entry)
+        self.button_copy_gross_profit = tk.Button(self, text="Copy", command=self.copy_gross_profit_formula_entry)
+
         self.unit_price_label.grid(row=0, column=0, sticky='w', pady=10, padx=10)
         self.unit_price_entry.grid(row=0, column=1, sticky='ew', pady=10, padx=10)
-        self.multiplier_formula_entry.grid(row=0, column=2, sticky='ew', pady=10, padx=10)
+        self.multiplier_formula_entry.grid(row=0, column=2, sticky='ew', pady=10, padx=(10, 0))
+        self.button_copy_multiplier.grid(row=0, column=3, sticky='w')
 
         self.basis_value_label.grid(row=1, column=0, sticky='w', pady=10, padx=10)
         self.basis_value_entry.grid(row=1, column=1, sticky='ew', pady=10, padx=10)
-        self.discount_formula_entry.grid(row=1, column=2, sticky='ew', pady=10, padx=10)
+        self.discount_formula_entry.grid(row=1, column=2, sticky='ew', pady=10, padx=(10, 0))
+        self.button_copy_discount.grid(row=1, column=3, sticky='w')
 
         self.decimals_label.grid(row=2, column=0, sticky='w', pady=10, padx=10)
         self.decimals_combo.grid(row=2, column=1, sticky='ew', pady=10, padx=10)
-        self.markup_formula_entry.grid(row=2, column=2, sticky='ew', pady=10, padx=10)
+        self.markup_formula_entry.grid(row=2, column=2, sticky='ew', pady=10, padx=(10, 0))
+        self.button_copy_markup.grid(row=2, column=3, sticky='w')
 
-        self.gross_profit_formula_entry.grid(row=3, column=2, sticky='ew', pady=10, padx=10)
+        self.gross_profit_formula_entry.grid(row=3, column=2, sticky='ew', pady=10, padx=(10, 0))
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=2)
+        self.button_copy_gross_profit.grid(row=3, column=3, sticky='w')
 
     def on_invalid(self, _):
         self.bell()
 
+    def copy_multiplier_formula_entry(self):
+        self.clipboard_clear()
+        self.clipboard_append(self.multiplier_formula_entry.get())
+        self.update()
+
+    def copy_discount_formula_entry(self):
+        self.clipboard_clear()
+        self.clipboard_append(self.discount_formula_entry.get())
+        self.update()
+
+    def copy_markup_formula_entry(self):
+        self.clipboard_clear()
+        self.clipboard_append(self.markup_formula_entry.get())
+        self.update()
+
+    def copy_gross_profit_formula_entry(self):
+        self.clipboard_clear()
+        self.clipboard_append(self.gross_profit_formula_entry.get())
+        self.update()
+
     def update_display(self, _):
-        if contains_digit(self.unit_price_var.get()) and contains_digit(self.basis_value_var.get()):
+        if is_float(self.unit_price_var.get()) and is_float(self.basis_value_var.get()):
             decimals = int(self.decimals_var.get()) if self.decimals_var.get() != 'Auto' else 6
             multiplier = float(self.unit_price_var.get()) / float(self.basis_value_var.get())
             self.multiplier_var.set(f'*{round(multiplier, decimals)}')
@@ -217,7 +237,7 @@ class UnitBasisFrame(ttk.Frame):
                 self.markup_var.set(f'D{round(1 / multiplier, decimals)}')
                 numeric_part = (1.1 - 1 / multiplier) * 100
                 if numeric_part < 100:
-                    self.gross_profit_var.set(f'GP{round((1.0 - 1 / multiplier) * 100.0, decimals)}')
+                    self.gross_profit_var.set(f'GP{(1.0 - 1 / multiplier) * 100.0}')
                 else:
                     self.gross_profit_var.set('')
             else:
@@ -266,7 +286,7 @@ class UnitFormulaFrame(ttk.Frame):
         self.gross_profit_var = tk.StringVar()
 
         # validation functions
-        nvcmd = (self.master.register(validate_number), '%P')
+        nvcmd = (self.master.register(is_float), '%P')
         fvcmd = (self.master.register(validate_formula), '%P')
         ivcmd = (self.master.register(self.on_invalid), '%W')
 
