@@ -9,7 +9,10 @@ class View(ttk.Frame):
         super().__init__(master, **kwargs)
 
         s = ttk.Style()
-        s.configure('TNotebook.Tab', font=('TkDefaultFont', '18', 'bold'))
+        s.configure(
+            'TNotebook.Tab',
+            # font=('TkDefaultFont', '18', 'bold'),
+        )
 
         # create the container to hold the frames
         self.tabs = ttk.Notebook(self)

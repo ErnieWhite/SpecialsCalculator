@@ -1,31 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-
-
-def is_float(value):
-    try:
-        float(value)
-        return True
-    except ValueError:
-        return False
-
-
-def is_float_or_empty(value):
-    return is_float(value) or value == ''
-
-
-def valid_formula(formula: str) -> bool:
-    # if formula is falsey
-    formula = formula.upper()
-    if not formula:
-        return False
-    leaders = ['*', 'X', 'D', '-', '+', 'GP']
-    for leader in leaders:
-        if len(formula) <= len(leader):
-            return False
-    if not is_float(formula):
-        return False
-    return True
+from utilities import *
 
 
 class UnitBasisFrame(ttk.Frame):
@@ -94,16 +69,19 @@ class UnitBasisFrame(ttk.Frame):
         self.place_widgets()
 
     def configure_widgets(self):
+        self.unit_price_label.config(text='Unit Price')
+        self.basis_value_label.config(text='Basis Value')
+        self.decimals_label.config(text='Decimal Places')
         self.unit_price_entry.config(
             textvariable=self.unit_price_var,
             validate='key',
-            font=('TkDefaultFont', 18),
+            # font=('TkDefaultFont', 18),
             validatecommand=self.vcmd,
             invalidcommand=self.ivcmd,
         )
         self.unit_price_entry.bind('<KeyRelease>', self.update_display)
         self.basis_value_entry.config(
-            font=('TkDefaultFont', 18),
+            # font=('TkDefaultFont', 18),
             textvariable=self.basis_value_var,
             validate='key',
             validatecommand=self.vcmd,
@@ -111,7 +89,7 @@ class UnitBasisFrame(ttk.Frame):
         )
         self.basis_value_entry.bind('<KeyRelease>', self.update_display)
         self.decimals_combo.config(
-            font=('TkDefaultFont', 18),
+            # font=('TkDefaultFont', 18),
             values=('Auto', '0', '1', '2', '3', '4', '5', '6'),
             state='readonly',
             textvariable=self.decimals_var,
@@ -123,22 +101,22 @@ class UnitBasisFrame(ttk.Frame):
         self.decimals_combo.set('Auto')
 
         self.multiplier_formula_entry.config(
-            font=('TkDefaultFont', 18),
+            # font=('TkDefaultFont', 18),
             textvariable=self.multiplier_var,
             state='readonly',
         )
         self.discount_formula_entry.config(
-            font=('TkDefaultFont', 18),
+            # font=('TkDefaultFont', 18),
             textvariable=self.discount_var,
             state='readonly',
         )
         self.markup_formula_entry.config(
-            font=('TkDefaultFont', 18),
+            # font=('TkDefaultFont', 18),
             textvariable=self.markup_var,
             state='readonly',
         )
         self.gross_profit_formula_entry.config(
-            font=('TkDefaultFont', 18),
+            # font=('TkDefaultFont', 18),
             textvariable=self.gross_profit_var,
             state='readonly',
         )
