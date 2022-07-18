@@ -3,7 +3,7 @@ from tkinter import ttk
 from utilities import *
 
 
-class UnitBasisFrame(ttk.Frame):
+class UnitBasisFrame(tk.Frame):
     """Ttk Frame with a predefined set of widgets
 
     See class definition for a layout of the widgets
@@ -51,16 +51,16 @@ class UnitBasisFrame(ttk.Frame):
         self.decimals_var = tk.StringVar()
 
         # create the widgets
-        self.unit_price_label = ttk.Label(self)
-        self.basis_value_label = ttk.Label(self)
-        self.decimals_label = ttk.Label(self)
-        self.unit_price_entry = ttk.Entry(self)
-        self.basis_value_entry = ttk.Entry(self)
+        self.unit_price_label = tk.Label(self)
+        self.basis_value_label = tk.Label(self)
+        self.decimals_label = tk.Label(self)
+        self.unit_price_entry = tk.Entry(self)
+        self.basis_value_entry = tk.Entry(self)
         self.decimals_combo = ttk.Combobox(self)
-        self.multiplier_formula_entry = ttk.Entry(self)
-        self.discount_formula_entry = ttk.Entry(self)
-        self.markup_formula_entry = ttk.Entry(self)
-        self.gross_profit_formula_entry = ttk.Entry(self)
+        self.multiplier_formula_entry = tk.Entry(self)
+        self.discount_formula_entry = tk.Entry(self)
+        self.markup_formula_entry = tk.Entry(self)
+        self.gross_profit_formula_entry = tk.Entry(self)
         self.button_copy_multiplier = tk.Button(self)
         self.button_copy_discount = tk.Button(self)
         self.button_copy_markup = tk.Button(self)

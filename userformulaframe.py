@@ -1,9 +1,8 @@
 import tkinter as tk
-from tkinter import ttk
 from utilities import *
 
 
-class UnitFormulaFrame(ttk.Frame):
+class UnitFormulaFrame(tk.Frame):
     """Ttk Frame with a predefined set of widgets
 
         See class definition for a layout of the widgets
@@ -27,18 +26,18 @@ class UnitFormulaFrame(ttk.Frame):
         self.formula_var = tk.StringVar()
         self.calculated_basis_var = tk.StringVar()
         self.unit_price_var = tk.StringVar()
-        self.nvcmd = (self.master.register(is_float), '%P')
+        self.nvcmd = (self.master.register(is_float_or_empty), '%P')
         self.fvcmd = (self.master.register(validate_formula), '%P')
         self.ivcmd = (self.master.register(self.on_invalid), '%W')
 
         # create the widgets
-        self.unit_price_label = ttk.Label(self)
-        self.formula_label = ttk.Label(self)
-        self.calculated_basis_label = ttk.Label(self)
+        self.unit_price_label = tk.Label(self)
+        self.formula_label = tk.Label(self)
+        self.calculated_basis_label = tk.Label(self)
 
-        self.unit_price_entry = ttk.Entry(self)
-        self.formula_entry = ttk.Entry(self)
-        self.calculated_basis_entry = ttk.Entry(self)
+        self.unit_price_entry = tk.Entry(self)
+        self.formula_entry = tk.Entry(self)
+        self.calculated_basis_entry = tk.Entry(self)
 
         self.setup_widgets()
         self.place_widgets()

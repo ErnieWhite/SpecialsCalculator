@@ -47,7 +47,7 @@ def validate_formula(value: str) -> bool:
         return True
     leaders.remove('G')
     for leader in leaders:
-        if value.startswith(leader) and is_float(value[len(leader):]):
+        if value.startswith(leader) and (is_float(value[len(leader):]) or value[len(leader):] == '.'):
             return True
     if value == '':
         return True
