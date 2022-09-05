@@ -82,7 +82,7 @@ class UnitFormulaFrame(tk.Frame):
         formula = self.formula_var.get()
         if valid_formula(formula):
             multiplier = find_multiplier(formula)
-            if multiplier != 0:
+            if multiplier > 0:
                 if is_float(unit_price):
                     self.calculated_basis_var.set(round(float(self.unit_price_var.get()) / multiplier, 3))
                 else:
