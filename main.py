@@ -1,52 +1,33 @@
 import sys
-
-from PyQt5.QtCore import QRegExp
-from PyQt5.QtGui import (
-    QIcon,
-    QDoubleValidator,
-    QRegExpValidator,
-)
-from PyQt5.QtWidgets import (
-    QMainWindow,
-    QAction,
-    QApplication,
-    QWidget,
-    QFormLayout,
-    QTabWidget,
-    QGridLayout,
-    QLineEdit,
-    QComboBox,
-    QLabel,
-    QHBoxLayout,
-    QVBoxLayout,
-    QScrollArea,
-    QGroupBox,
-    QPushButton,
-    QFileDialog,
-)
+from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 
 
-class Window(QMainWindow):
+class Window(QtWidgets.QMainWindow):
 
     def __init__(self):
         super(Window, self).__init__()
         self.setGeometry(50, 50, 500, 300)
         self.setWindowTitle("Pricing Tool")
-        self.setWindowIcon(QIcon('pythonlogo.png'))
-        self._createMenu()
+        self.setWindowIcon(QtGui.QIcon('sc.ico'))
 
         self.statusBar()
+        self.unitPriceFormulaTab = UnitFormula()
+        self.unitBasisTab = UnitBasis()
+        self.ticketSpecialsTab = TicketSpecials(30)
 
-        self.centralWidget = QTabWidget()
+        self.centralWidget = QtWidgets.QTabWidget()
 
-        self.home()
+        self._createMenu()
+        self._setupCentralWidget()
+
+        self.show()
         self.resizeWindow()
 
     def resizeWindow(self):
         self.resize(self.sizeHint())
 
     def _createMenu(self):
-        extractAction = QAction("&Exit", self)
+        extractAction = QtWidgets.QAction("&Exit", self)
         extractAction.setShortcut("Ctrl+Q")
         extractAction.setStatusTip('Leave The App')
         extractAction.triggered.connect(self.close_application)
@@ -54,22 +35,17 @@ class Window(QMainWindow):
         fileMenu = mainMenu.addMenu('&File')
         fileMenu.addAction(extractAction)
 
-    def home(self):
-        self.unitPriceFormulaTab = UnitFormula()
-        self.unitBasisTab = UnitBasis()
-        self.ticketSpecialsTab = TicketSpecials(30)
+    def _setupCentralWidget(self):
         self.centralWidget.addTab(self.unitPriceFormulaTab, 'Unit Price/Formula')
         self.centralWidget.addTab(self.unitBasisTab, 'Unit Price/Basis')
         self.centralWidget.addTab(self.ticketSpecialsTab, 'Ticket Specials')
-
         self.setCentralWidget(self.centralWidget)
-        self.show()
 
     def close_application(self):
         self.close()
 
 
-class TicketSpecials(QWidget):
+class TicketSpecials(QtWidgets.QWidget):
     def __init__(self, val):
         super().__init__()
         self.title = "PyQt5 Scroll Bar"
@@ -77,53 +53,52 @@ class TicketSpecials(QWidget):
         self.left = 500
         self.width = 400
         self.height = 300
-        self.setWindowIcon(QIcon("icon.png"))
+        self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        formLayout = QFormLayout()
-        groupBox = QGroupBox("This Is Group Box")
+        formLayout = QtWidgets.QFormLayout()
+        groupBox = QtWidgets.QGroupBox("This Is Group Box")
         labelLis = []
         comboList = []
         for i in range(val):
-            labelLis.append(QLabel("Label"))
-            comboList.append(QPushButton("Click Me"))
+            labelLis.append(QtWidgets.QLabel("Label"))
+            comboList.append(QtWidgets.QPushButton("Click Me"))
             formLayout.addRow(labelLis[i], comboList[i])
         groupBox.setLayout(formLayout)
-        scroll = QScrollArea()
+        scroll = QtWidgets.QScrollArea()
         scroll.setWidget(groupBox)
         scroll.setWidgetResizable(True)
         # scroll.setFixedHeight(400)
-        layout = QVBoxLayout(self)
+        layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(scroll)
 
 
-class UnitBasis(QWidget):
+class UnitBasis(QtWidgets.QWidget):
     def __init__(self):
         super(UnitBasis, self).__init__()
-        self.horizontalLayout = QHBoxLayout()
-        self.verticalLayout = QVBoxLayout()
-        self.formLayout = QFormLayout()
-
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.formLayout = QtWidgets.QFormLayout()
 
         # create our double validator
-        doubleValidator = QDoubleValidator()
+        doubleValidator = QtGui.QDoubleValidator()
 
         # add widgets to formlayout
-        self.unitPriceLineEdit = QLineEdit()
+        self.unitPriceLineEdit = QtWidgets.QLineEdit()
         self.unitPriceLineEdit.setValidator(doubleValidator)
-        self.basisValueLineEdit = QLineEdit()
+        self.basisValueLineEdit = QtWidgets.QLineEdit()
         self.basisValueLineEdit.setValidator(doubleValidator)
-        self.decimalsComboBox = QComboBox()
+        self.decimalsComboBox = QtWidgets.QComboBox()
         self.decimalsComboBox.addItems(('Auto', '0', '1', '2', '3', '4', '5', '6'))
         self.formLayout.addRow('Unit Price', self.unitPriceLineEdit)
         self.formLayout.addRow('Basis Value', self.basisValueLineEdit)
         self.formLayout.addRow('Decimals', self.decimalsComboBox)
 
         # add widgets to the verticalLayout
-        self.multiplierValue = QLineEdit()
-        self.discountValue = QLineEdit()
-        self.markupValue = QLineEdit()
-        self.grossProfitValue = QLineEdit()
+        self.multiplierValue = QtWidgets.QLineEdit()
+        self.discountValue = QtWidgets.QLineEdit()
+        self.markupValue = QtWidgets.QLineEdit()
+        self.grossProfitValue = QtWidgets.QLineEdit()
         self.verticalLayout.addWidget(self.multiplierValue)
         self.verticalLayout.addWidget(self.discountValue)
         self.verticalLayout.addWidget(self.markupValue)
@@ -171,7 +146,8 @@ class UnitBasis(QWidget):
             self.markupValue.setText(f'D{round(1 / multiplier, int(self.decimalsComboBox.currentText()))}')
             numeric_part = (1.1 - 1 / multiplier) * 100
             if numeric_part < 100:
-                self.grossProfitValue.setText(f'GP{round((1.0 - 1 / multiplier) * 100.0, int(self.decimalsComboBox.currentText()))}')
+                self.grossProfitValue.setText(
+                    f'GP{round((1.0 - 1 / multiplier) * 100.0, int(self.decimalsComboBox.currentText()))}')
             else:
                 self.grossProfitValue.setText('')
 
@@ -202,25 +178,25 @@ class UnitBasis(QWidget):
         self.grossProfitValue.setText('')
 
 
-class UnitFormula(QWidget):
+class UnitFormula(QtWidgets.QWidget):
     def __init__(self):
         super(UnitFormula, self).__init__()
 
-        regex = QRegExp(r"(?:\*|X|D|\-|\+|GP)-?([0-9]*[.])?[0-9]+")
-        regex.setCaseSensitivity(False)
+        regex = QtCore.QRegExp(r"(?:\*|X|D|\-|\+|GP)-?([0-9]*[.])?[0-9]+")
+        regex.setCaseSensitivity(QtCore.CaseInsensitive)
 
-        doubleValidator = QDoubleValidator()
+        doubleValidator = QtGui.QDoubleValidator()
 
-        self.unitPriceLineEdit = QLineEdit()
+        self.unitPriceLineEdit = QtWidgets.QLineEdit()
         self.unitPriceLineEdit.setValidator(doubleValidator)
-        self.formulaLineEdit = QLineEdit()
-        formulaValidator = QRegExpValidator(regex, self.formulaLineEdit)
+        self.formulaLineEdit = QtWidgets.QLineEdit()
+        formulaValidator = QtGui.QRegExpValidator(regex, self.formulaLineEdit)
         self.formulaLineEdit.setValidator(formulaValidator)
-        self.decimalsComboBox = QComboBox()
+        self.decimalsComboBox = QtWidgets.QComboBox()
         self.decimalsComboBox.addItems(('Auto', '0', '1', '2', '3', '4', '5', '6'))
-        self.basisLineEdit = QLineEdit()
+        self.basisLineEdit = QtWidgets.QLineEdit()
 
-        layout = QFormLayout()
+        layout = QtWidgets.QFormLayout()
         layout.addRow('Unit Price', self.unitPriceLineEdit)
         layout.addRow('Formula', self.formulaLineEdit)
         layout.addRow('Decimals', self.decimalsComboBox)
@@ -236,7 +212,7 @@ class UnitFormula(QWidget):
             self.basisLineEdit.setToolTip('')
             return
         multiplier = self.findMultiplier(self.formulaLineEdit.text())
-        if multiplier <= 0: # or not self.unitPriceLineEdit.text():
+        if multiplier <= 0:  # or not self.unitPriceLineEdit.text():
             self.basisLineEdit.setText('')
             return
         if self.decimalsComboBox.currentText() == 'Auto':
@@ -244,7 +220,8 @@ class UnitFormula(QWidget):
         elif self.decimalsComboBox.currentText() == '0':
             self.basisLineEdit.setText(str(int(float(self.unitPriceLineEdit.text()) / multiplier)))
         else:
-            self.basisLineEdit.setText(str(round(float(self.unitPriceLineEdit.text()) / multiplier, int(self.decimalsComboBox.currentText()))))
+            self.basisLineEdit.setText(
+                str(round(float(self.unitPriceLineEdit.text()) / multiplier, int(self.decimalsComboBox.currentText()))))
 
     @staticmethod
     def findMultiplier(formula: str) -> float:
@@ -268,7 +245,7 @@ class UnitFormula(QWidget):
 
 
 def run():
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     GUI = Window()
     sys.exit(app.exec_())
 
