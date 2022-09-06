@@ -97,7 +97,7 @@ class UnitBasis(QtWidgets.QWidget):
             if formula[0].upper() in '*X':
                 return float(formula[1:])
         except (ZeroDivisionError, ValueError):
-            return -1
+            pass
         return -1
 
     def clearFormulas(self):
