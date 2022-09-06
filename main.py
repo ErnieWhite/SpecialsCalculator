@@ -1,5 +1,5 @@
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets, Qt
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Window(QtWidgets.QMainWindow):
@@ -182,15 +182,15 @@ class UnitFormula(QtWidgets.QWidget):
     def __init__(self):
         super(UnitFormula, self).__init__()
 
-        regex = QtCore.QRegExp(r"(?:\*|X|D|\-|\+|GP)-?([0-9]*[.])?[0-9]+")
-        regex.setCaseSensitivity(QtCore.CaseInsensitive)
+        regex = QtCore.QRegularExpression(r"(?:\*|X|D|\-|\+|GP)-?([0-9]*[.])?[0-9]+",
+                                          QtCore.QRegularExpression.CaseInsensitiveOption)
 
         doubleValidator = QtGui.QDoubleValidator()
 
         self.unitPriceLineEdit = QtWidgets.QLineEdit()
         self.unitPriceLineEdit.setValidator(doubleValidator)
         self.formulaLineEdit = QtWidgets.QLineEdit()
-        formulaValidator = QtGui.QRegExpValidator(regex, self.formulaLineEdit)
+        formulaValidator = QtGui.QRegularExpressionValidator(regex, self.formulaLineEdit)
         self.formulaLineEdit.setValidator(formulaValidator)
         self.decimalsComboBox = QtWidgets.QComboBox()
         self.decimalsComboBox.addItems(('Auto', '0', '1', '2', '3', '4', '5', '6'))
@@ -246,7 +246,7 @@ class UnitFormula(QtWidgets.QWidget):
 
 def run():
     app = QtWidgets.QApplication(sys.argv)
-    GUI = Window()
+    _ = Window()
     sys.exit(app.exec_())
 
 
