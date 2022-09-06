@@ -68,7 +68,6 @@ class TicketSpecials(QtWidgets.QWidget):
         scroll = QtWidgets.QScrollArea()
         scroll.setWidget(groupBox)
         scroll.setWidgetResizable(True)
-        # scroll.setFixedHeight(400)
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(scroll)
 
