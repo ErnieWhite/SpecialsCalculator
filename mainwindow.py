@@ -14,7 +14,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowIcon(QtGui.QIcon('sc.ico'))
 
         self.statusBar()
-        self.unitPriceFormulaTab = UnitFormula()
+        self.unitPriceFormulaTab = UnitFormula(parent=self)
         self.unitBasisTab = UnitBasis()
         self.ticketSpecialsTab = TicketSpecials(30)
 

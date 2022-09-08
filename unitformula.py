@@ -3,8 +3,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class UnitFormula(QtWidgets.QWidget):
 
-    def __init__(self):
-        super(UnitFormula, self).__init__()
+    def __init__(self, parent=None):
+        super(UnitFormula, self).__init__(parent)
 
         regex = QtCore.QRegularExpression(r"(?:\*|X|D|\-|\+|GP)-?([0-9]*[.])?[0-9]+",
                                           QtCore.QRegularExpression.CaseInsensitiveOption)
