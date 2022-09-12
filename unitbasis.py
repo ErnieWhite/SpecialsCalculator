@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QLabel, QComboBox, QPushButton, QWidget, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, \
     QHBoxLayout, QVBoxLayout, QFormLayout, QApplication
 from PyQt5.QtGui import QIcon, QDoubleValidator, QClipboard
+from functools import partial
 
 
 class UnitBasis(QWidget):
@@ -61,16 +62,21 @@ class UnitBasis(QWidget):
         self.unitPriceLineEdit.textChanged.connect(self.calculateFormulas)
         self.basisValueLineEdit.textChanged.connect(self.calculateFormulas)
         self.decimalsComboBox.currentTextChanged.connect(self.calculateFormulas)
-        self.multiplierCopyButton.clicked.connect(self.copyMultiplierText)
-        self.discountCopyButton.clicked.connect(self.copyDiscountText)
-        self.markupCopyButton.clicked.connect(self.copyMarkupText)
-        self.grossProfitCopyButton.clicked.connect(self.copyGrossProfitText)
+        self.multiplierCopyButton.clicked.connect(lambda: self.copyToClipBoard(self.multiplierValue.text()))
+        self.discountCopyButton.clicked.connect(lambda: self.copyToClipBoard(self.discountValue.text()))
+        self.markupCopyButton.clicked.connect(lambda: self.copyToClipBoard(self.markupValue.text()))
+        self.grossProfitCopyButton.clicked.connect(lambda: self.copyToClipBoard(self.grossProfitValue.text()))
 
         self.mainLayout.addLayout(self.formLayout)
         self.mainLayout.addLayout(self.formulaLayout)
         self.mainLayout.addLayout(self.copyLayout)
 
         self.setLayout(self.mainLayout)
+
+    def copyToClipBoard(self, text):
+        cb = QApplication.clipboard()
+        cb.clear(mode=cb.Clipboard)
+        cb.setText(text, mode=cb.Clipboard)
 
     def copyMultiplierText(self):
         text = self.multiplierValue.text()
