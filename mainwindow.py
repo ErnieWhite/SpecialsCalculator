@@ -1,24 +1,25 @@
-from PyQt5 import QtGui, QtWidgets
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMainWindow, QTabWidget, QAction
 
 from unitformula import UnitFormula
 from ticketspecials import TicketSpecials
 from unitbasis import UnitBasis
 
 
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindow(QMainWindow):
 
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setGeometry(50, 50, 500, 300)
         self.setWindowTitle("Pricing Tool")
-        self.setWindowIcon(QtGui.QIcon('sc.ico'))
+        self.setWindowIcon(QIcon('sc.ico'))
 
         self.statusBar()
         self.unitPriceFormulaTab = UnitFormula(parent=self)
         self.unitBasisTab = UnitBasis()
         self.ticketSpecialsTab = TicketSpecials(30)
 
-        self.centralWidget = QtWidgets.QTabWidget()
+        self.centralWidget = QTabWidget()
 
         self._createMenu()
         self._setupCentralWidget()
@@ -30,7 +31,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.resize(self.sizeHint())
 
     def _createMenu(self):
-        extractAction = QtWidgets.QAction("&Exit", self)
+        extractAction = QAction("&Exit", self)
         extractAction.setShortcut("Ctrl+Q")
         extractAction.setStatusTip('Leave The App')
         extractAction.triggered.connect(self.close_application)
@@ -46,4 +47,3 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def close_application(self):
         self.close()
-

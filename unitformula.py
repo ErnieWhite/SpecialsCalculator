@@ -1,26 +1,28 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QRegularExpression
+from PyQt5.QtGui import QDoubleValidator, QRegularExpressionValidator
+from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFormLayout
 
 
-class UnitFormula(QtWidgets.QWidget):
+class UnitFormula(QWidget):
 
     def __init__(self, parent=None):
         super(UnitFormula, self).__init__(parent)
 
-        regex = QtCore.QRegularExpression(r"(?:\*|X|D|\-|\+|GP)-?([0-9]*[.])?[0-9]+",
-                                          QtCore.QRegularExpression.CaseInsensitiveOption)
+        regex = QRegularExpression(r"(?:\*|X|D|\-|\+|GP)-?([0-9]*[.])?[0-9]+",
+                                          QRegularExpression.CaseInsensitiveOption)
 
-        doubleValidator = QtGui.QDoubleValidator()
+        doubleValidator = QDoubleValidator()
 
-        self.unitPriceLineEdit = QtWidgets.QLineEdit()
+        self.unitPriceLineEdit = QLineEdit()
         self.unitPriceLineEdit.setValidator(doubleValidator)
-        self.formulaLineEdit = QtWidgets.QLineEdit()
-        formulaValidator = QtGui.QRegularExpressionValidator(regex, self.formulaLineEdit)
+        self.formulaLineEdit = QLineEdit()
+        formulaValidator = QRegularExpressionValidator(regex, self.formulaLineEdit)
         self.formulaLineEdit.setValidator(formulaValidator)
-        self.decimalsComboBox = QtWidgets.QComboBox()
+        self.decimalsComboBox = QComboBox()
         self.decimalsComboBox.addItems(('Auto', '0', '1', '2', '3', '4', '5', '6'))
-        self.basisLineEdit = QtWidgets.QLineEdit()
+        self.basisLineEdit = QLineEdit()
 
-        layout = QtWidgets.QFormLayout()
+        layout = QFormLayout()
         layout.addRow('Unit Price', self.unitPriceLineEdit)
         layout.addRow('Formula', self.formulaLineEdit)
         layout.addRow('Decimals', self.decimalsComboBox)

@@ -1,47 +1,100 @@
-from PyQt5 import QtGui, QtWidgets
+from PyQt5.QtWidgets import QLabel, QComboBox, QPushButton, QWidget, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, \
+    QHBoxLayout, QVBoxLayout, QFormLayout, QApplication
+from PyQt5.QtGui import QIcon, QDoubleValidator, QClipboard
 
 
-class UnitBasis(QtWidgets.QWidget):
+class UnitBasis(QWidget):
 
     def __init__(self):
         super(UnitBasis, self).__init__()
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.verticalLayout = QtWidgets.QVBoxLayout()
-        self.formLayout = QtWidgets.QFormLayout()
+        self.mainLayout = QHBoxLayout()
+        self.formLayout = QFormLayout()
+        self.formulaLayout = QVBoxLayout()
+        self.copyLayout = QVBoxLayout()
 
         # create our double validator
-        doubleValidator = QtGui.QDoubleValidator()
+        doubleValidator = QDoubleValidator()
 
-        # add widgets to formlayout
-        self.unitPriceLineEdit = QtWidgets.QLineEdit()
+        # setup the formLayout
+        # Unit Price
+        self.unitPriceLineEdit = QLineEdit()
         self.unitPriceLineEdit.setValidator(doubleValidator)
-        self.basisValueLineEdit = QtWidgets.QLineEdit()
+        self.formLayout.addRow("Unit Price", self.unitPriceLineEdit)
+        # Basis Value
+        self.basisValueLineEdit = QLineEdit()
         self.basisValueLineEdit.setValidator(doubleValidator)
-        self.decimalsComboBox = QtWidgets.QComboBox()
+        self.formLayout.addRow("Basis Value", self.basisValueLineEdit)
+        # Decimal Places
+        self.decimalsComboBox = QComboBox()
         self.decimalsComboBox.addItems(('Auto', '0', '1', '2', '3', '4', '5', '6'))
-        self.formLayout.addRow('Unit Price', self.unitPriceLineEdit)
-        self.formLayout.addRow('Basis Value', self.basisValueLineEdit)
-        self.formLayout.addRow('Decimals', self.decimalsComboBox)
+        self.formLayout.addRow("Decimals", self.decimalsComboBox)
+        self.formLayout.setSpacing(11)
 
-        # add widgets to the verticalLayout
-        self.multiplierValue = QtWidgets.QLineEdit()
-        self.discountValue = QtWidgets.QLineEdit()
-        self.markupValue = QtWidgets.QLineEdit()
-        self.grossProfitValue = QtWidgets.QLineEdit()
-        self.verticalLayout.addWidget(self.multiplierValue)
-        self.verticalLayout.addWidget(self.discountValue)
-        self.verticalLayout.addWidget(self.markupValue)
-        self.verticalLayout.addWidget(self.grossProfitValue)
-        self.verticalLayout.addStretch(2)
-        self.horizontalLayout.addLayout(self.formLayout)
-        self.horizontalLayout.addLayout(self.verticalLayout)
+        # setup the formulaLayout
+        self.multiplierValue = QLineEdit()
+        self.discountValue = QLineEdit()
+        self.markupValue = QLineEdit()
+        self.grossProfitValue = QLineEdit()
+        self.formulaLayout.addWidget(self.multiplierValue)
+        self.formulaLayout.addWidget(self.discountValue)
+        self.formulaLayout.addWidget(self.markupValue)
+        self.formulaLayout.addWidget(self.grossProfitValue)
+        self.formulaLayout.addStretch(1)
+        self.formulaLayout.setSpacing(11)
+
+        # setup the copyLoyout
+        self.multiplierCopyButton = QPushButton()
+        self.multiplierCopyButton.setIcon(QIcon("copy.png"))
+        self.discountCopyButton = QPushButton()
+        self.discountCopyButton.setIcon(QIcon("copy.png"))
+        self.markupCopyButton = QPushButton()
+        self.markupCopyButton.setIcon(QIcon("copy.png"))
+        self.grossProfitCopyButton = QPushButton()
+        self.grossProfitCopyButton.setIcon(QIcon("copy.png"))
+        self.copyLayout.addWidget(self.multiplierCopyButton)
+        self.copyLayout.addWidget(self.discountCopyButton)
+        self.copyLayout.addWidget(self.markupCopyButton)
+        self.copyLayout.addWidget(self.grossProfitCopyButton)
+        self.copyLayout.addStretch(1)
 
         # make our connections
         self.unitPriceLineEdit.textChanged.connect(self.calculateFormulas)
         self.basisValueLineEdit.textChanged.connect(self.calculateFormulas)
         self.decimalsComboBox.currentTextChanged.connect(self.calculateFormulas)
+        self.multiplierCopyButton.clicked.connect(self.copyMultiplierText)
+        self.discountCopyButton.clicked.connect(self.copyDiscountText)
+        self.markupCopyButton.clicked.connect(self.copyMarkupText)
+        self.grossProfitCopyButton.clicked.connect(self.copyGrossProfitText)
 
-        self.setLayout(self.horizontalLayout)
+        self.mainLayout.addLayout(self.formLayout)
+        self.mainLayout.addLayout(self.formulaLayout)
+        self.mainLayout.addLayout(self.copyLayout)
+
+        self.setLayout(self.mainLayout)
+
+    def copyMultiplierText(self):
+        text = self.multiplierValue.text()
+        cb = QApplication.clipboard()
+        cb.clear(mode=cb.Clipboard)
+        cb.setText(text, mode=cb.Clipboard)
+
+    def copyDiscountText(self):
+        text = self.discountValue.text()
+        cb = QApplication.clipboard()
+        cb.clear(mode=cb.Clipboard)
+        cb.setText(text, mode=cb.Clipboard)
+
+    def copyMarkupText(self):
+        text = self.markupValue.text()
+        cb = QApplication.clipboard()
+        cb.clear(mode=cb.Clipboard)
+        cb.setText(text, mode=cb.Clipboard)
+
+    def copyGrossProfitText(self):
+        text = self.grossProfitValue.text()
+        cb = QApplication.clipboard()
+        cb.clear(mode=cb.Clipboard)
+        cb.setText(text, mode=cb.Clipboard)
 
     def calculateFormulas(self):
         if not self.unitPriceLineEdit.text() or not self.basisValueLineEdit.text():
