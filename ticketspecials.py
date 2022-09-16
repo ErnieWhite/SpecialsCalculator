@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets
+import csv
 
 
 class TicketSpecials(QtWidgets.QWidget):
@@ -6,15 +7,17 @@ class TicketSpecials(QtWidgets.QWidget):
         super().__init__()
         formLayout = QtWidgets.QFormLayout()
         groupBox = QtWidgets.QGroupBox("This Is Group Box")
-        labelLis = []
-        comboList = []
+        labelList = []
+        pushButtonList = []
         for i in range(val):
-            labelLis.append(QtWidgets.QLabel("Label"))
-            comboList.append(QtWidgets.QPushButton("Click Me"))
-            formLayout.addRow(labelLis[i], comboList[i])
+            labelList.append(QtWidgets.QLabel("Label"))
+            pushButtonList.append(QtWidgets.QPushButton("Click Me"))
+            formLayout.addRow(labelList[i], pushButtonList[i])
         groupBox.setLayout(formLayout)
         scroll = QtWidgets.QScrollArea()
         scroll.setWidget(groupBox)
         scroll.setWidgetResizable(True)
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(scroll)
+
+

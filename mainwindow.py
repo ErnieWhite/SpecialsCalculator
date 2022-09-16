@@ -31,13 +31,33 @@ class MainWindow(QMainWindow):
         self.resize(self.sizeHint())
 
     def _createMenu(self):
-        extractAction = QAction("&Exit", self)
-        extractAction.setShortcut("Ctrl+Q")
-        extractAction.setStatusTip('Leave The App')
-        extractAction.triggered.connect(self.close_application)
+        # add the exit button
+        exitAction = QAction("E&xit", self)
+        exitAction.setShortcut("Alt+F4")
+        exitAction.setStatusTip('Exit The App')
+        exitAction.triggered.connect(self.closeApplication)
+
+        # add the open action for loading the ticket tsv file
+        openAction = QAction("&Open", self)
+        openAction.setStatusTip("Open an exported ticket")
+        openAction.triggered.connect(self.getTicketData)
+
+        # add the save action for saving generated mass load file
+        saveAction = QAction("&Save", self)
+        saveAction.setStatusTip("Save the generated mass load file")
+        saveAction.triggered.connect(self.saveMassLoad)
+
         mainMenu = self.menuBar()
         fileMenu = mainMenu.addMenu('&File')
-        fileMenu.addAction(extractAction)
+        fileMenu.addAction(openAction)
+        fileMenu.addAction(saveAction)
+        fileMenu.addAction(exitAction)
+
+    def getTicketData(self):
+        pass
+
+    def saveMassLoad(self):
+        pass
 
     def _setupCentralWidget(self):
         self.centralWidget.addTab(self.unitPriceFormulaTab, 'Unit Price/Formula')
@@ -45,5 +65,5 @@ class MainWindow(QMainWindow):
         self.centralWidget.addTab(self.ticketSpecialsTab, 'Ticket Specials')
         self.setCentralWidget(self.centralWidget)
 
-    def close_application(self):
+    def closeApplication(self):
         self.close()
