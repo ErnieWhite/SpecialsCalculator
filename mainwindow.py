@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow, QTabWidget, QAction
+from PyQt5.QtWidgets import QMainWindow, QTabWidget, QAction, QFileDialog
 
 from unitformula import UnitFormula
 from ticketspecials import TicketSpecials
@@ -54,7 +54,22 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(exitAction)
 
     def getTicketData(self):
-        pass
+        fileName = self.openFileNameDialog()
+        if fileName:
+            print(fileName)
+
+    def openFileNameDialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(
+            self,
+            "Open Ticket To Process",
+            "",
+            "Tab Separated Files (*.tsv);;All Files (*)",
+            options=options
+        )
+        if fileName:
+            return fileName
 
     def saveMassLoad(self):
         pass
