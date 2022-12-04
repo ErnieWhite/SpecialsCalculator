@@ -57,12 +57,16 @@ class UnitFormula(QWidget):
         """
         try:
             print(formula)
+            # discount
             if formula[0] in '+-':
                 return 1 + float(formula) / 100
+            # markup
             if formula[0].upper() == 'D':
                 return 1 / float(formula[1:])
+            # gross profit
             if formula.upper().startswith('GP') and len(formula) > 2:
                 return 1 / (1 - float(formula[2:]) / 100)
+            # multiplier
             if formula[0].upper() in '*X':
                 return float(formula[1:])
         except (ZeroDivisionError, ValueError):
