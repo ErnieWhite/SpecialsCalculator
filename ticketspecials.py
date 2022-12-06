@@ -1,4 +1,6 @@
 from PyQt5 import QtWidgets
+import sys
+import PyQt5
 import csv
 
 
@@ -21,3 +23,15 @@ class TicketSpecials(QtWidgets.QWidget):
         layout.addWidget(scroll)
 
 
+
+
+def run():
+    app = PyQt5.QtWidgets.QApplication(sys.argv)
+    window = TicketSpecials(30)
+    window.show()
+
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    run()

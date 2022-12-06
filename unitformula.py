@@ -1,6 +1,8 @@
 from PyQt5.QtCore import QRegularExpression
 from PyQt5.QtGui import QDoubleValidator, QRegularExpressionValidator
 from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFormLayout
+import sys
+import PyQt5
 
 
 class UnitFormula(QWidget):
@@ -72,3 +74,15 @@ class UnitFormula(QWidget):
         except (ZeroDivisionError, ValueError):
             return -1
         return -1
+
+
+def run():
+    app = PyQt5.QtWidgets.QApplication(sys.argv)
+    window = UnitFormula()
+    window.show()
+
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    run()

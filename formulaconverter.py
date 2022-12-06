@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QLabel, QComboBox, QPushButton, QWidget, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, \
     QHBoxLayout, QVBoxLayout, QFormLayout, QApplication
 from PyQt5.QtGui import QIcon, QDoubleValidator, QClipboard
+import sys
+import PyQt5
 
 
 class FormulaConverter(QWidget):
@@ -16,14 +18,9 @@ class FormulaConverter(QWidget):
         doubleValidator = QDoubleValidator()
 
         # set up the formLayout
-        # Unit Price
-        self.unitPriceLineEdit = QLineEdit()
-        self.unitPriceLineEdit.setValidator(doubleValidator)
-        self.formLayout.addRow("Unit Price", self.unitPriceLineEdit)
-        # Basis Value
-        self.basisValueLineEdit = QLineEdit()
-        self.basisValueLineEdit.setValidator(doubleValidator)
-        self.formLayout.addRow("Basis Value", self.basisValueLineEdit)
+        self.formulaLineEdit = QLineEdit()
+        self.formLayout.addRow('Formula', self.formulaLineEdit)
+
         # Decimal Places
         self.decimalsComboBox = QComboBox()
         self.decimalsComboBox.addItems(('Auto', '0', '1', '2', '3', '4', '5', '6'))
@@ -58,14 +55,14 @@ class FormulaConverter(QWidget):
         self.copyLayout.addStretch(1)
 
         # make our connections
-        self.unitPriceLineEdit.textChanged.connect(self.calculateFormulas)
-        self.basisValueLineEdit.textChanged.connect(self.calculateFormulas)
+        self.formulaLineEdit.textChanged.connect(self.calculateFormulas)
         self.decimalsComboBox.currentTextChanged.connect(self.calculateFormulas)
         self.multiplierCopyButton.clicked.connect(lambda: self.copyToClipBoard(self.multiplierValue.text()))
         self.discountCopyButton.clicked.connect(lambda: self.copyToClipBoard(self.discountValue.text()))
         self.markupCopyButton.clicked.connect(lambda: self.copyToClipBoard(self.markupValue.text()))
         self.grossProfitCopyButton.clicked.connect(lambda: self.copyToClipBoard(self.grossProfitValue.text()))
 
+        self.mainLayout.addLayout(self.formLayout)
         self.mainLayout.addLayout(self.formulaLayout)
         self.mainLayout.addLayout(self.copyLayout)
 
@@ -101,13 +98,13 @@ class FormulaConverter(QWidget):
         cb.setText(text, mode=cb.Clipboard)
 
     def calculateFormulas(self):
-        if not self.unitPriceLineEdit.text() or not self.basisValueLineEdit.text():
+        if not self.formulaLineEdit.text():
             self.clearFormulas()
             return
-        if self.unitPriceLineEdit.text() == '.' or self.basisValueLineEdit.text() == '.':
+        if self.formulaLineEdit.text() == '.':
             self.clearFormulas()
             return
-        multiplier = float(self.unitPriceLineEdit.text()) / float(self.basisValueLineEdit.text())
+        multiplier = self.findMultiplier(self.formulaLineEdit.text())
         if self.decimalsComboBox.currentText() == 'Auto':
             self.multiplierValue.setText(f'*{multiplier}')
             self.discountValue.setText(f'{(multiplier - 1) * 100:+}')
@@ -162,3 +159,15 @@ class FormulaConverter(QWidget):
         self.discountValue.setText('')
         self.markupValue.setText('')
         self.grossProfitValue.setText('')
+
+
+def run():
+    app = PyQt5.QtWidgets.QApplication(sys.argv)
+    window = FormulaConverter()
+    window.show()
+
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    run()

@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import QMainWindow, QTabWidget, QAction, QFileDialog
 from unitformula import UnitFormula
 from ticketspecials import TicketSpecials
 from unitbasis import UnitBasis
-from formulaconverter import FormulaConverter
 
 
 class MainWindow(QMainWindow):
@@ -49,11 +48,33 @@ class MainWindow(QMainWindow):
         saveAction.setStatusTip("Save the generated mass load file")
         saveAction.triggered.connect(self.saveMassLoad)
 
+        # add the action to load the UnitBasis frame
+        unitBasisAction = QAction("Find Formula", self)
+        saveAction.setStatusTip("Find the formula based on the unit price and basis price")
+        saveAction.triggered.connect(self.loadUnitBasis)
+
+        # add the action to load the UnitFormula frame
+        unitFormulaAction = QAction('Find Basis', self)
+        unitFormulaAction.setStatusTip('Find the basis value using the unit price and formula')
+        unitFormulaAction.triggered.connect(self.loadUnitFormula)
+
+        # add the action to load the ticket specials frame
+        ticketSpecialsAction = QAction('Ticket Specials', self)
+        ticketSpecialsAction.setStatusTip('Create a batch load file from a exported ticket')
+        ticketSpecialsAction.triggered.connect(self.loadTicketSpecials)
+
+        # add the
+
         mainMenu = self.menuBar()
         fileMenu = mainMenu.addMenu('&File')
         fileMenu.addAction(openAction)
         fileMenu.addAction(saveAction)
         fileMenu.addAction(exitAction)
+
+        viewMenu = mainMenu.addMenu("&View")
+        viewMenu.addAction(unitBasisAction)
+        viewMenu.addAction(unitFormulaAction)
+        viewMenu.addAction(ticketSpecialsAction)
 
     def getTicketData(self):
         fileName = self.openFileNameDialog()

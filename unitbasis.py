@@ -1,7 +1,8 @@
+import PyQt5
 from PyQt5.QtWidgets import QLabel, QComboBox, QPushButton, QWidget, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, \
     QHBoxLayout, QVBoxLayout, QFormLayout, QApplication
 from PyQt5.QtGui import QIcon, QDoubleValidator, QClipboard
-from functools import partial
+import sys
 
 
 class UnitBasis(QWidget):
@@ -164,3 +165,15 @@ class UnitBasis(QWidget):
         self.discountValue.setText('')
         self.markupValue.setText('')
         self.grossProfitValue.setText('')
+
+
+def run():
+    app = PyQt5.QtWidgets.QApplication(sys.argv)
+    window = UnitBasis()
+    window.show()
+
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    run()
