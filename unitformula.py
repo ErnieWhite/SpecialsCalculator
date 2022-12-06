@@ -9,7 +9,7 @@ class UnitFormula(QWidget):
         super(UnitFormula, self).__init__(parent)
 
         regex = QRegularExpression(r"(?:\*|X|D|\-|\+|GP)-?([0-9]*[.])?[0-9]+",
-                                          QRegularExpression.CaseInsensitiveOption)
+                                   QRegularExpression.CaseInsensitiveOption)
 
         doubleValidator = QDoubleValidator()
 

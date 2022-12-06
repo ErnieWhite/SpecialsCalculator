@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QMainWindow, QTabWidget, QAction, QFileDialog
 from unitformula import UnitFormula
 from ticketspecials import TicketSpecials
 from unitbasis import UnitBasis
+from formulaconverter import FormulaConverter
 
 
 class MainWindow(QMainWindow):
@@ -15,7 +16,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon('sc.ico'))
 
         self.statusBar()
-        self.unitPriceFormulaTab = UnitFormula(parent=self)
+        self.unitFormulaTab = UnitFormula(parent=self)
         self.unitBasisTab = UnitBasis()
         self.ticketSpecialsTab = TicketSpecials(30)
 
@@ -26,6 +27,7 @@ class MainWindow(QMainWindow):
 
         self.show()
         self.resizeWindow()
+        self.currentFrame = None
 
     def resizeWindow(self):
         self.resize(self.sizeHint())
@@ -75,10 +77,24 @@ class MainWindow(QMainWindow):
         pass
 
     def _setupCentralWidget(self):
-        self.centralWidget.addTab(self.unitPriceFormulaTab, 'Unit Price/Formula')
+        self.centralWidget.addTab(self.unitFormulaTab, 'Unit Price/Formula')
         self.centralWidget.addTab(self.unitBasisTab, 'Unit Price/Basis')
         self.centralWidget.addTab(self.ticketSpecialsTab, 'Ticket Specials')
         self.setCentralWidget(self.centralWidget)
 
     def closeApplication(self):
         self.close()
+
+    def loadUnitBasis(self):
+        if self.currentFrame:
+            self.currentFrame.forget()
+
+
+    def loadUnitFormula(self):
+        pass
+
+    def loadFormulaConverter(self):
+        pass
+
+    def loadTicketSpecials(self):
+        pass

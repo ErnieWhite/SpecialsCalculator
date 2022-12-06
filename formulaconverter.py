@@ -1,13 +1,12 @@
 from PyQt5.QtWidgets import QLabel, QComboBox, QPushButton, QWidget, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, \
     QHBoxLayout, QVBoxLayout, QFormLayout, QApplication
 from PyQt5.QtGui import QIcon, QDoubleValidator, QClipboard
-from functools import partial
 
 
-class UnitBasis(QWidget):
+class FormulaConverter(QWidget):
 
-    def __init__(self):
-        super(UnitBasis, self).__init__()
+    def __init__(self, parent=None):
+        super(FormulaConverter, self).__init__()
         self.mainLayout = QHBoxLayout()
         self.formLayout = QFormLayout()
         self.formulaLayout = QVBoxLayout()
@@ -67,7 +66,6 @@ class UnitBasis(QWidget):
         self.markupCopyButton.clicked.connect(lambda: self.copyToClipBoard(self.markupValue.text()))
         self.grossProfitCopyButton.clicked.connect(lambda: self.copyToClipBoard(self.grossProfitValue.text()))
 
-        self.mainLayout.addLayout(self.formLayout)
         self.mainLayout.addLayout(self.formulaLayout)
         self.mainLayout.addLayout(self.copyLayout)
 
